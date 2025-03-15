@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PointLib;
+﻿using PointLib;
+using System;
 
 namespace FormsApp
 {
     [Serializable]
-    class Point3D:Point
+    public class Point3D : Point
     {
+        private static Random rnd = new Random();
+
         public int Z { get; set; }
 
         public Point3D() : base()
@@ -21,6 +19,7 @@ namespace FormsApp
         {
             Z = z;
         }
+
         public override double Metric()
         {
             return Math.Sqrt(X * X + Y * Y + Z * Z);

@@ -51,6 +51,7 @@
             this.btnCreate.TabIndex = 1;
             this.btnCreate.Text = "Create";
             this.btnCreate.UseVisualStyleBackColor = true;
+            this.btnCreate.Click += new System.EventHandler(this.btnCreate_Click);
             // 
             // btnSort
             // 
@@ -70,6 +71,7 @@
             this.btnDeserialize.TabIndex = 4;
             this.btnDeserialize.Text = "Deserialize";
             this.btnDeserialize.UseVisualStyleBackColor = true;
+            this.btnDeserialize.Click += new System.EventHandler(this.btnDeserialize_Click);
             // 
             // btnSerialize
             // 
@@ -92,8 +94,7 @@
             this.Controls.Add(this.btnCreate);
             this.Controls.Add(this.listBox);
             this.Name = "Form1";
-            this.Text = "Point Form";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Text = "Points Form";
             this.ResumeLayout(false);
 
         }

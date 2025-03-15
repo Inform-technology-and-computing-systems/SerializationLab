@@ -3,10 +3,13 @@ using PointLib;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Formatters.Soap;
 using System.Xml.Serialization;
-using YamlDotNet.Serialization;
+using Newtonsoft.Json;
 using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FormsApp
 {
@@ -17,11 +20,6 @@ namespace FormsApp
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
         }
 
         private void btnCreate_Click(object sender, EventArgs e)
@@ -100,6 +98,17 @@ namespace FormsApp
                             }
                         }
                         break;
+                    //case ".yaml":
+                    //    var serializerYaml = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    //        .WithTagMapping("!Point", typeof(Point))
+                    //        .WithTagMapping("!Point3D", typeof(Point3D))
+                    //        .Build();
+
+                    //    using (var writer = new StreamWriter(fs))
+                    //    {
+                    //        serializerYaml.Serialize(writer, points);
+                    //    }
+                    //    break;
                 }
             }
         }
@@ -107,7 +116,8 @@ namespace FormsApp
         private void btnDeserialize_Click(object sender, EventArgs e)
         {
             var dlg = new OpenFileDialog();
-            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin";
+            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.txt";
+
             if (dlg.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -137,7 +147,7 @@ namespace FormsApp
                         var deserializer = new DeserializerBuilder()
                             .WithNamingConvention(CamelCaseNamingConvention.Instance)
                             .IgnoreUnmatchedProperties()
-                            .Build(); //fdgfdgdf
+                            .Build();
                         using (var reader = new StreamReader(fs))
                         {
                             points = deserializer.Deserialize<Point[]>(reader);
@@ -146,7 +156,7 @@ namespace FormsApp
                     case ".txt":
                         using (var reader = new StreamReader(fs))
                         {
-                            var lines = reader.ReadToEnd().Split("\n").Skip(1); // Пропускаем заголовок
+                            var lines = reader.ReadToEnd().Split('\n').Skip(1); // Пропускаем заголовок
                             var tempList = new List<Point>();
 
                             foreach (var line in lines)
@@ -161,6 +171,18 @@ namespace FormsApp
                             points = tempList.ToArray();
                         }
                         break;
+                    //case ".yaml":
+                    //    var deserializer = new DeserializerBuilder()
+                    //        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    //        .WithTagMapping("!Point", typeof(Point))
+                    //        .WithTagMapping("!Point3D", typeof(Point3D))
+                    //        .Build();
+                    //    using (var reader = new StreamReader(fs))
+                    //    {
+                    //        var pointLis = deserializer.Deserialize<List<Point>>(reader);
+                    //        points = pointLis.ToArray();
+                    //    }
+                    //    break;
                 }
             }
 
