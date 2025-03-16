@@ -48,8 +48,7 @@ namespace FormsApp
         private void btnSerialize_Click(object sender, EventArgs e)
         {
             var dlg = new SaveFileDialog();
-            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.txt";
-
+            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.txt|Custom|*.custom";
             if (dlg.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -70,45 +69,66 @@ namespace FormsApp
                         var xf = new XmlSerializer(typeof(Point[]), new[] { typeof(Point3D) });
                         xf.Serialize(fs, points);
                         break;
+                    //case ".json":
+                    //    var jf = new JsonSerializer();
+                    //    using (var w = new StreamWriter(fs))
+                    //        jf.Serialize(w, points);
+                    //    break;
                     case ".json":
-                        var jf = new JsonSerializer();
+                        var jf = new JsonSerializer
+                        {
+                            TypeNameHandling = TypeNameHandling.Auto
+                        };
                         using (var w = new StreamWriter(fs))
-                            jf.Serialize(w, points);
+                        using (var jsonWriter = new JsonTextWriter(w))
+                            jf.Serialize(jsonWriter, points);
                         break;
+                    //case ".yaml":
+                    //    var serializer = new SerializerBuilder()
+                    //        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    //        .Build();
+                    //    using (var writer = new StreamWriter(fs))
+                    //    {
+                    //        var yaml = serializer.Serialize(points);
+                    //        writer.Write(yaml);
+                    //    }
+                    //    break;
                     case ".yaml":
-                        var serializer = new SerializerBuilder()
-                            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                        var serializerYaml = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance)
+                            .WithTagMapping("!Point", typeof(Point))
+                            .WithTagMapping("!Point3D", typeof(Point3D))
                             .Build();
+
                         using (var writer = new StreamWriter(fs))
                         {
-                            var yaml = serializer.Serialize(points);
-                            writer.Write(yaml);
+                            serializerYaml.Serialize(writer, points);
                         }
                         break;
                     case ".txt":
                         using (var writer = new StreamWriter(fs))
                         {
-                            writer.WriteLine("X;Y;Z"); // Заголовок
+                            writer.WriteLine("X;Y;Z");
                             foreach (var point in points)
                             {
                                 if (point is Point3D p3d)
                                     writer.WriteLine($"{p3d.X};{p3d.Y};{p3d.Z}");
                                 else
-                                    writer.WriteLine($"{point.X};{point.Y};0"); // Заполняем Z нулём для 2D-точек
+                                    writer.WriteLine($"{point.X};{point.Y};0");
                             }
                         }
                         break;
-                    //case ".yaml":
-                    //    var serializerYaml = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    //        .WithTagMapping("!Point", typeof(Point))
-                    //        .WithTagMapping("!Point3D", typeof(Point3D))
-                    //        .Build();
-
-                    //    using (var writer = new StreamWriter(fs))
-                    //    {
-                    //        serializerYaml.Serialize(writer, points);
-                    //    }
-                    //    break;
+                    case ".custom":
+                        using (var writer = new StreamWriter(fs))
+                        {
+                            foreach (var point in points)
+                            {
+                                if (point is Point3D p3d)
+                                    writer.WriteLine($"3D,{p3d.X},{p3d.Y},{p3d.Z}");
+                                else
+                                    writer.WriteLine($"2D,{point.X},{point.Y}");
+                            }
+                        }
+                        break;
                 }
             }
         }
@@ -116,7 +136,7 @@ namespace FormsApp
         private void btnDeserialize_Click(object sender, EventArgs e)
         {
             var dlg = new OpenFileDialog();
-            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.txt";
+            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.txt|Custom|*.custom";
 
             if (dlg.ShowDialog() != DialogResult.OK)
                 return;
@@ -138,25 +158,48 @@ namespace FormsApp
                         var xf = new XmlSerializer(typeof(Point[]), new[] { typeof(Point3D) });
                         points = (Point[])xf.Deserialize(fs);
                         break;
+                    //case ".json":
+                    //    var jf = new JsonSerializer();
+                    //    using (var r = new StreamReader(fs))
+                    //        points = (Point[])jf.Deserialize(r, typeof(Point[]));
+                    //    break;
                     case ".json":
-                        var jf = new JsonSerializer();
+                        var jf = new JsonSerializer
+                        {
+                            TypeNameHandling = TypeNameHandling.Auto
+                        };
                         using (var r = new StreamReader(fs))
-                            points = (Point[])jf.Deserialize(r, typeof(Point[]));
+                        using (var jsonReader = new JsonTextReader(r))
+                        {
+                            points = jf.Deserialize<Point[]>(jsonReader);
+                        }
                         break;
+                    //case ".yaml":
+                    //    var deserializer = new DeserializerBuilder()
+                    //        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    //        .IgnoreUnmatchedProperties()
+                    //        .Build();
+                    //    using (var reader = new StreamReader(fs))
+                    //    {
+                    //        points = deserializer.Deserialize<Point[]>(reader);
+                    //    }
+                    //    break;
                     case ".yaml":
                         var deserializer = new DeserializerBuilder()
                             .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                            .IgnoreUnmatchedProperties()
+                            .WithTagMapping("!Point", typeof(Point))
+                            .WithTagMapping("!Point3D", typeof(Point3D))
                             .Build();
                         using (var reader = new StreamReader(fs))
                         {
-                            points = deserializer.Deserialize<Point[]>(reader);
+                            var pointLis = deserializer.Deserialize<List<Point>>(reader);
+                            points = pointLis.ToArray();
                         }
                         break;
                     case ".txt":
                         using (var reader = new StreamReader(fs))
                         {
-                            var lines = reader.ReadToEnd().Split('\n').Skip(1); // Пропускаем заголовок
+                            var lines = reader.ReadToEnd().Split('\n').Skip(1);
                             var tempList = new List<Point>();
 
                             foreach (var line in lines)
@@ -171,18 +214,29 @@ namespace FormsApp
                             points = tempList.ToArray();
                         }
                         break;
-                    //case ".yaml":
-                    //    var deserializer = new DeserializerBuilder()
-                    //        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    //        .WithTagMapping("!Point", typeof(Point))
-                    //        .WithTagMapping("!Point3D", typeof(Point3D))
-                    //        .Build();
-                    //    using (var reader = new StreamReader(fs))
-                    //    {
-                    //        var pointLis = deserializer.Deserialize<List<Point>>(reader);
-                    //        points = pointLis.ToArray();
-                    //    }
-                    //    break;
+                    case ".custom":
+                        using (var reader = new StreamReader(fs))
+                        {
+                            var tempList = new List<Point>();
+                            string line;
+                            while ((line = reader.ReadLine()) != null)
+                            {
+                                var parts = line.Split(',');
+                                if (parts.Length == 3 && parts[0] == "2D" &&
+                                    int.TryParse(parts[1], out int x) && int.TryParse(parts[2], out int y))
+                                {
+                                    tempList.Add(new Point(x, y));
+                                }
+                                else if (parts.Length == 4 && parts[0] == "3D" &&
+                                         int.TryParse(parts[1], out x) && int.TryParse(parts[2], out y) &&
+                                         int.TryParse(parts[3], out int z))
+                                {
+                                    tempList.Add(new Point3D(x, y, z));
+                                }
+                            }
+                            points = tempList.ToArray();
+                        }
+                        break;
                 }
             }
 
