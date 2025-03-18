@@ -13,11 +13,11 @@ using System.Linq;
 
 namespace FormsApp
 {
-    public partial class Form1: Form
+    public partial class PointForm: Form
     {
         private Point[] points = null;
 
-        public Form1()
+        public PointForm()
         {
             InitializeComponent();
         }

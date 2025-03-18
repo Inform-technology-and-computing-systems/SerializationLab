@@ -3,11 +3,8 @@ using System;
 
 namespace FormsApp
 {
-    [Serializable]
     public class Point3D : Point
     {
-        private static Random rnd = new Random();
-
         public int Z { get; set; }
 
         public Point3D() : base()
