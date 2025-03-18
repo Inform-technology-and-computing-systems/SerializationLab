@@ -69,11 +69,6 @@ namespace FormsApp
                         var xf = new XmlSerializer(typeof(Point[]), new[] { typeof(Point3D) });
                         xf.Serialize(fs, points);
                         break;
-                    //case ".json":
-                    //    var jf = new JsonSerializer();
-                    //    using (var w = new StreamWriter(fs))
-                    //        jf.Serialize(w, points);
-                    //    break;
                     case ".json":
                         var jf = new JsonSerializer
                         {
@@ -83,16 +78,6 @@ namespace FormsApp
                         using (var jsonWriter = new JsonTextWriter(w))
                             jf.Serialize(jsonWriter, points);
                         break;
-                    //case ".yaml":
-                    //    var serializer = new SerializerBuilder()
-                    //        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    //        .Build();
-                    //    using (var writer = new StreamWriter(fs))
-                    //    {
-                    //        var yaml = serializer.Serialize(points);
-                    //        writer.Write(yaml);
-                    //    }
-                    //    break;
                     case ".yaml":
                         var serializerYaml = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance)
                             .WithTagMapping("!Point", typeof(Point))
@@ -158,11 +143,6 @@ namespace FormsApp
                         var xf = new XmlSerializer(typeof(Point[]), new[] { typeof(Point3D) });
                         points = (Point[])xf.Deserialize(fs);
                         break;
-                    //case ".json":
-                    //    var jf = new JsonSerializer();
-                    //    using (var r = new StreamReader(fs))
-                    //        points = (Point[])jf.Deserialize(r, typeof(Point[]));
-                    //    break;
                     case ".json":
                         var jf = new JsonSerializer
                         {
@@ -174,16 +154,6 @@ namespace FormsApp
                             points = jf.Deserialize<Point[]>(jsonReader);
                         }
                         break;
-                    //case ".yaml":
-                    //    var deserializer = new DeserializerBuilder()
-                    //        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    //        .IgnoreUnmatchedProperties()
-                    //        .Build();
-                    //    using (var reader = new StreamReader(fs))
-                    //    {
-                    //        points = deserializer.Deserialize<Point[]>(reader);
-                    //    }
-                    //    break;
                     case ".yaml":
                         var deserializer = new DeserializerBuilder()
                             .WithNamingConvention(CamelCaseNamingConvention.Instance)
