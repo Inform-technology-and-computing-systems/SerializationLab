@@ -3,6 +3,7 @@ using System;
 
 namespace FormsApp
 {
+    [Serializable]
     public class Point3D : Point
     {
         public int Z { get; set; }

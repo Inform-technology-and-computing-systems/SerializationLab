@@ -48,7 +48,7 @@ namespace FormsApp
         private void btnSerialize_Click(object sender, EventArgs e)
         {
             var dlg = new SaveFileDialog();
-            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.txt|Custom|*.custom";
+            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.custom";
             if (dlg.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -89,7 +89,7 @@ namespace FormsApp
                             serializerYaml.Serialize(writer, points);
                         }
                         break;
-                    case ".txt":
+                    case ".custom":
                         using (var writer = new StreamWriter(fs))
                         {
                             writer.WriteLine("X;Y;Z");
@@ -102,18 +102,6 @@ namespace FormsApp
                             }
                         }
                         break;
-                    case ".custom":
-                        using (var writer = new StreamWriter(fs))
-                        {
-                            foreach (var point in points)
-                            {
-                                if (point is Point3D p3d)
-                                    writer.WriteLine($"3D,{p3d.X},{p3d.Y},{p3d.Z}");
-                                else
-                                    writer.WriteLine($"2D,{point.X},{point.Y}");
-                            }
-                        }
-                        break;
                 }
             }
         }
@@ -121,7 +109,7 @@ namespace FormsApp
         private void btnDeserialize_Click(object sender, EventArgs e)
         {
             var dlg = new OpenFileDialog();
-            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.txt|Custom|*.custom";
+            dlg.Filter = "SOAP|*.soap|XML|*.xml|JSON|*.json|Binary|*.bin|YAML|*.yaml|Custom Format|*.custom";
 
             if (dlg.ShowDialog() != DialogResult.OK)
                 return;
@@ -166,7 +154,7 @@ namespace FormsApp
                             points = pointLis.ToArray();
                         }
                         break;
-                    case ".txt":
+                    case ".custom":
                         using (var reader = new StreamReader(fs))
                         {
                             var lines = reader.ReadToEnd().Split('\n').Skip(1);
@@ -179,29 +167,6 @@ namespace FormsApp
                                     int.TryParse(parts[1], out int y) && int.TryParse(parts[2], out int z))
                                 {
                                     tempList.Add(z == 0 ? new Point(x, y) : new Point3D(x, y, z));
-                                }
-                            }
-                            points = tempList.ToArray();
-                        }
-                        break;
-                    case ".custom":
-                        using (var reader = new StreamReader(fs))
-                        {
-                            var tempList = new List<Point>();
-                            string line;
-                            while ((line = reader.ReadLine()) != null)
-                            {
-                                var parts = line.Split(',');
-                                if (parts.Length == 3 && parts[0] == "2D" &&
-                                    int.TryParse(parts[1], out int x) && int.TryParse(parts[2], out int y))
-                                {
-                                    tempList.Add(new Point(x, y));
-                                }
-                                else if (parts.Length == 4 && parts[0] == "3D" &&
-                                         int.TryParse(parts[1], out x) && int.TryParse(parts[2], out y) &&
-                                         int.TryParse(parts[3], out int z))
-                                {
-                                    tempList.Add(new Point3D(x, y, z));
                                 }
                             }
                             points = tempList.ToArray();
